@@ -1,11 +1,11 @@
-#Yelp Demo Test Backend App
+# Yelp Demo Test Backend App
 
 This is a demo test backend app for Yelp, designed to provide basic functionality for restaurants. The backend is built using NestJS.
 
 The following API endpoints are available in this app:
 
 - `GET /api/restaurants` - Get operation to get a list of restaurants based on two query params ("term" and "location")
-- `GET /api/restaurants/:id` - CRUD operations for managing businesses
+- `GET /api/restaurants/:id` - Get operation to get a single restaurant
 
 ## Installation
 
