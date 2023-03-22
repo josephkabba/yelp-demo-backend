@@ -8,7 +8,6 @@ import { ValidationPipe } from "@nestjs/common";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   app.use(helmet());
-  app.use(csurf());
 
   const config = app.get(ConfigService);
   const port = config.get<number>("PORT");
@@ -22,6 +21,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  //app.use(csurf());
 
   await app.listen(port, URL);
 }

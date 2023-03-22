@@ -6,7 +6,7 @@ export class RestaurantsController {
   constructor(private readonly restaurantsService: RestaurantsService) {}
 
   @Get()
-  async getRestaurants(
+  async searchRestaurants(
     @Query("location") location: string,
     @Query("term") term: string,
   ) {

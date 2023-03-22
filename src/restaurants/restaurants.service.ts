@@ -1,7 +1,16 @@
-import { RestaurantDto } from "./restaurants.dto";
+import { Business } from "./../yelp-fusion/yelp-business.schema";
+import { Restaurant } from "./restaurants.dto";
 import { YelpFusionApiClientService } from "./../yelp-fusion/yelp-fusion.service";
-import { CACHE_MANAGER, Inject, Injectable } from "@nestjs/common";
+import {
+  CACHE_MANAGER,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from "@nestjs/common";
 import { Cache } from "cache-manager";
+
+const CACHE_TTL = 360000;
 
 @Injectable()
 export class RestaurantsService {
@@ -13,11 +22,11 @@ export class RestaurantsService {
   async searchRestaurants(
     term: string,
     location: string,
-  ): Promise<RestaurantDto[]> {
-    const cacheKey = `search-businesses-${term}-${location}`;
+  ): Promise<Restaurant[]> {
+    const cacheKey = `search-restaurants-${term}-${location}`;
 
     try {
-      const cachedResponse = await this.cacheManager.get<RestaurantDto[]>(
+      const cachedResponse = await this.cacheManager.get<Restaurant[]>(
         cacheKey,
       );
 
@@ -30,23 +39,46 @@ export class RestaurantsService {
         location,
       });
 
-      await this.cacheManager.set(cacheKey, searchResponse, 360000);
+      const restaurants = searchResponse.map(
+        (value): Restaurant => mapBusinessToRestaurant(value),
+      );
 
-      return searchResponse;
+      await this.cacheManager.set(cacheKey, restaurants, CACHE_TTL);
+
+      return restaurants;
     } catch (error) {
-      throw new Error(`Error searching businesses: ${error.message}`);
+      throw new HttpException(`${error.message}`, HttpStatus.BAD_REQUEST);
     }
   }
 
-  async getRestaurantDetails(businessId: string): Promise<RestaurantDto> {
+  async getRestaurantDetails(businessId: string): Promise<Restaurant> {
     try {
-      const businessDetails = await this.yelpApiClient.getBusinessDetails(
-        businessId,
-      );
+      const result = await this.yelpApiClient.getBusinessDetails(businessId);
 
-      return businessDetails;
+      return mapBusinessToRestaurant(result);
     } catch (error) {
-      throw new Error(`Error getting business details: ${error.message}`);
+      throw new HttpException(`${error.message}`, HttpStatus.BAD_REQUEST);
     }
   }
 }
+
+const mapBusinessToRestaurant = (business: Business): Restaurant => {
+  return {
+    id: business.id,
+    name: business.name,
+    location: {
+      address1: business.location.address1,
+      city: business.location.city,
+      state: business.location.state,
+      zip: business.location.state,
+    },
+    image_url: business.image_url,
+    review_count: business.review_count,
+    rating: business.rating,
+    phone: business.phone,
+    categories: business.categories.map((category) => ({
+      alias: category.alias,
+      title: category.title,
+    })),
+  };
+};

@@ -1,3 +1,4 @@
+import { Business } from "./../yelp-fusion/yelp-business.schema";
 import { Injectable } from "@nestjs/common";
 import {
   SearchBusinessesParams,
@@ -13,7 +14,10 @@ export class YelpFusionApiClientService implements YelpFusionApiClient {
     this.client = yelp.client(apiKey);
   }
 
-  async searchBusinesses({ term, location }: SearchBusinessesParams) {
+  async searchBusinesses({
+    term,
+    location,
+  }: SearchBusinessesParams): Promise<Business[]> {
     const searchRequest = {
       term,
       location,
@@ -26,7 +30,7 @@ export class YelpFusionApiClientService implements YelpFusionApiClient {
     }
   }
 
-  async getBusinessDetails(businessId: string) {
+  async getBusinessDetails(businessId: string): Promise<Business> {
     try {
       const businessResponse = await this.client.business(businessId);
       return businessResponse.jsonBody;
