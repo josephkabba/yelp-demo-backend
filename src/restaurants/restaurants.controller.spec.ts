@@ -12,6 +12,7 @@ describe("RestaurantsController", () => {
   const term = "coffee";
   const location = "london";
 
+  //SETUP
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [YelpFusionModule, CacheModule.register()],
@@ -26,6 +27,8 @@ describe("RestaurantsController", () => {
   describe("GET /restaurants", () => {
     it("should return an array of restaurants", async () => {
       const result: Restaurant[] = [];
+
+      // Mock the service method
       jest
         .spyOn(service, "searchRestaurants")
         .mockImplementation(() => Promise.resolve(result));

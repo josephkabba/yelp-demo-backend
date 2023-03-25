@@ -10,6 +10,7 @@ import * as yelp from "yelp-fusion";
 export class YelpFusionApiClientService implements YelpFusionApiClient {
   private client: yelp.Client;
 
+  //API key is injected by the module
   constructor(apiKey: string) {
     this.client = yelp.client(apiKey);
   }
